@@ -3,12 +3,14 @@ import  userRoutes from './User/user.router';
 
 
 const app = express();
+app.use(express.json()); //used to parse JSON bodies
 
-const PORT = 8080;
 
 
+
+//Routes
 userRoutes(app);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(8080, () => {
+    console.log(`Server is running on http://localhost:8088`);
 });
