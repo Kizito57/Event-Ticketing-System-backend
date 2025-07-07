@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
-import * as userService from '../User/user.service';
+import * as userService from './user.service';
 import jwt from 'jsonwebtoken';
 import { sendWelcomeEmail, sendVerificationEmail } from '../mailer/email.service';
 // import {

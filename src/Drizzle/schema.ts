@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
 import { text, varchar, serial, pgTable, decimal, integer, boolean, date, time, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum } from "drizzle-orm/pg-core";
+
+
+
+export const userRoleEnum = pgEnum("role_enum", ["user", "admin"]);
+export const ticketStatusEnum = pgEnum("ticket_status_enum", ["pending", "confirmed", "cancelled"]);
+
 
 // Users Table
 export const UsersTable = pgTable("users", {
@@ -60,7 +67,7 @@ export const BookingsTable = pgTable("bookings", {
 // Payments Table
 export const PaymentsTable = pgTable("payments", {
   payment_id: serial("payment_id").primaryKey(),
-  booking_id: integer("booking_id").notNull().references(() => BookingsTable.booking_id, { onDelete: "cascade" }),
+  booking_id: integer("booking_id").notNull().references(() => BookingsTable.booking_id, { onDelete: "cascade" }) .unique(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   payment_status: varchar("payment_status", { length: 20 }).notNull().default("Pending"),
   payment_date: timestamp("payment_date").notNull(),
@@ -76,7 +83,7 @@ export const SupportTicketsTable = pgTable("support_tickets", {
   user_id: integer("user_id").notNull().references(() => UsersTable.user_id, { onDelete: "cascade" }),
   subject: varchar("subject", { length: 150 }).notNull(),
   description: text("description").notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("Open"),//enume 'Open', 'In Progress', 'Closed'
+  status: varchar("status", { length: 20 }).notNull().default("Open"),//enum 'Open', 'In Progress', 'Closed'
   created_at: timestamp("created_at").notNull(),
   updated_at: timestamp("updated_at").notNull()
 });
