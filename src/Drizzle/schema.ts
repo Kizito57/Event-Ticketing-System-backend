@@ -21,8 +21,8 @@ export const UsersTable = pgTable("users", {
   verification_code: varchar("verification_code", { length: 10 }),
   is_verified: boolean("is_verified").default(false),
   image_url: varchar("image_url", { length: 500 }),
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull()
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 // Venues Table
@@ -32,8 +32,8 @@ export const VenuesTable = pgTable("venues", {
   address: varchar("address", { length: 255 }).notNull(),
   capacity: integer("capacity").notNull(),
   image_url: varchar("image_url", { length: 500 }),
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull()
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 // Events Table
@@ -48,8 +48,8 @@ export const EventsTable = pgTable("events", {
   ticket_price: decimal("ticket_price", { precision: 10, scale: 2 }).notNull(),
   tickets_total: integer("tickets_total").notNull(),
   tickets_sold: integer("tickets_sold").notNull().default(0),
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull()
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 // Bookings Table
@@ -60,8 +60,8 @@ export const BookingsTable = pgTable("bookings", {
   quantity: integer("quantity").notNull(),
   total_amount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   booking_status: varchar("booking_status", { length: 20 }).notNull().default("Pending"),
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull()
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 // Payments Table
@@ -73,8 +73,8 @@ export const PaymentsTable = pgTable("payments", {
   payment_date: timestamp("payment_date").notNull(),
   payment_method: varchar("payment_method", { length: 50 }),
   transaction_id: varchar("transaction_id", { length: 100 }),
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull()
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 // Support Tickets Table
@@ -84,8 +84,8 @@ export const SupportTicketsTable = pgTable("support_tickets", {
   subject: varchar("subject", { length: 150 }).notNull(),
   description: text("description").notNull(),
   status: varchar("status", { length: 20 }).notNull().default("Open"),//enum 'Open', 'In Progress', 'Closed'
-  created_at: timestamp("created_at").notNull(),
-  updated_at: timestamp("updated_at").notNull()
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
 // RELATIONSHIPS

@@ -48,6 +48,7 @@ export const createPayment = async (req: Request, res: Response) => {
     try {
         const paymentData = {
             ...req.body,
+            payment_date: new Date(req.body.payment_date),
             created_at: new Date(),
             updated_at: new Date()
         };
