@@ -13,35 +13,35 @@ jest.mock('../../src/Drizzle/db', () => ({
   },
 }));
 
-// Get the mocked db instance
+// Gets the mocked db instance
 const mockDb = db as unknown as jest.Mocked<typeof db>;
 
 describe('support-ticket.service (type-safe mocks)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock getAll: db.select().from() (no where)
+    // Mock getAll:
     (mockDb.select as jest.Mock).mockImplementation(() => ({
       from: jest.fn(() => Promise.resolve([
         { ticket_id: 1, user_id: 201, status: 'open' },
       ])),
     }));
 
-    // Mock getById and getByUserId: db.select().from().where()
+    // Mock getByUserId
     (mockDb.select as jest.Mock).mockImplementation(() => ({
       from: jest.fn(() => ({
         where: jest.fn(() => Promise.resolve([{ ticket_id: 1, user_id: 201, status: 'open' }])),
       })),
     }));
 
-    // Mock create: db.insert().values().returning()
+    // Mock create: 
     (mockDb.insert as jest.Mock).mockImplementation(() => ({
       values: jest.fn(() => ({
         returning: jest.fn(() => Promise.resolve([{ ticket_id: 1, user_id: 201, status: 'open' }])),
       })),
     }));
 
-    // Mock update: db.update().set().where().returning()
+    // Mock update: 
     (mockDb.update as jest.Mock).mockImplementation(() => ({
       set: jest.fn(() => ({
         where: jest.fn(() => ({
@@ -50,7 +50,7 @@ describe('support-ticket.service (type-safe mocks)', () => {
       })),
     }));
 
-    // Mock delete: db.delete().where().returning()
+    // Mock delete
     (mockDb.delete as jest.Mock).mockImplementation(() => ({
       where: jest.fn(() => ({
         returning: jest.fn(() => Promise.resolve([{ ticket_id: 1 }])),
@@ -59,7 +59,7 @@ describe('support-ticket.service (type-safe mocks)', () => {
   });
 
   it('should fetch all support tickets', async () => {
-    // Override the mock specifically for getAll test
+    
     (mockDb.select as jest.Mock).mockImplementationOnce(() => ({
       from: jest.fn(() => Promise.resolve([
         { ticket_id: 1, user_id: 201, status: 'open' },

@@ -92,7 +92,7 @@ export const authenticated = (req: AuthRequest, res: Response, next: NextFunctio
     });
 };
 
-// Legacy exports (for backward compatibility)
+
 export const adminRoleAuth = adminOnly;
 export const userRoleAuth = userOnly;
 export const bothRoleAuth = authenticated;

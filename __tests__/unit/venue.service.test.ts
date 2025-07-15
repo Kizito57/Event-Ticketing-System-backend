@@ -118,7 +118,7 @@ describe('venue.service', () => {
     expect(result).toBe(false);
   });
 
-  it('should throw error if db.delete().where().returning rejects in remove', async () => {
+  it('should throw error if delete().where().returning rejects in remove', async () => {
     (db.delete as jest.Mock).mockImplementationOnce(() => ({
       where: jest.fn(() => ({
         returning: jest.fn(() => Promise.reject(new Error('Delete failed'))),

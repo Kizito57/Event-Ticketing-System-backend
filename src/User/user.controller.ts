@@ -3,30 +3,7 @@ import { Request, Response } from 'express';
 import * as userService from './user.service';
 import jwt from 'jsonwebtoken';
 import { sendWelcomeEmail, sendVerificationEmail } from '../mailer/email.service';
-// import {
-//   getUsersWithBookings,
-//   getUsersWithReservation,
-// } from '../User/user.service';
 
-// // Get users with bookings
-// export const handleGetUsersWithBookings = async (_req: Request, res: Response) => {
-//   try {
-//     const result = await getUsersWithBookings();
-//     res.json(result);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to fetch users with bookings.' });
-//   }
-// };
-
-// // Get users with reservations
-// export const handleGetUsersWithReservation = async (_req: Request, res: Response) => {
-//   try {
-//     const result = await getUsersWithReservation();
-//     res.json(result);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to fetch users with reservation.' });
-//   }
-// };
 
 // GET all users (Admin only)
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -38,7 +15,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     }
 };
 
-// GET user by ID (Admin or self)
+// GET user by ID (Admin or user)
 export const getUserById = async (req: Request, res: Response) => {
     try {
         const requestedId = Number(req.params.id);
@@ -79,7 +56,7 @@ export const createUser = async (req: Request, res: Response) => {
         const newUserData = {
             ...userData,
             password: hashedPassword,
-            role: 'user',      // matches your schema default roles ('user', 'admin')
+            role: 'user',     
             verification_code: verificationCode,
             is_verified: false
         };
@@ -166,7 +143,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     }
 };
 
-// CREATE admin (One-time setup - remove route after use)
+// CREATE admin 
 export const createAdmin = async (req: Request, res: Response) => {
     try {
         const { password, ...adminData } = req.body;
@@ -279,8 +256,8 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 };
 
-// Legacy function for backward compatibility
-export const loginCustomer = loginUser;
+// // Legacy function for backward compatibility
+// export const loginCustomer = loginUser;
 
 // UPDATE user (Admin or self)
 export const updateUser = async (req: Request, res: Response) => {

@@ -3,6 +3,7 @@ import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
 import * as userService from '../../src/User/user.service';
 import * as userController from '../../src/User/user.controller';
+import * as emailService from '../../src/mailer/email.service';
 import bcrypt from 'bcryptjs';
 
 // Mock DB
@@ -14,7 +15,7 @@ const mockUserService = userService as jest.Mocked<typeof userService>;
 
 // Mock bcrypt
 jest.mock('bcryptjs');
-const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
+const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;   
 
 // Mock email service
 jest.mock('../../src/mailer/email.service', () => ({
@@ -22,8 +23,8 @@ jest.mock('../../src/mailer/email.service', () => ({
   sendVerificationEmail: jest.fn()
 }));
 
-// Import the mocked email service
-import * as emailService from '../../src/mailer/email.service';
+
+
 const mockEmailService = emailService as jest.Mocked<typeof emailService>;
 
 // Mock JWT
