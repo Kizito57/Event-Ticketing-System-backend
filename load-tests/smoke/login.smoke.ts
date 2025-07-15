@@ -8,23 +8,12 @@ export const options = {
 };
 
 export default function () {
-    // 1. Register User
-    // const registerPayload = JSON.stringify({
-    //     first_name:  'Test ',
-    //     last_name: 'User',
-    //     email: 'dkwanjiru097@gmail.com',
-    //     password: 'mypassword123'
-    // });
+
 
     const headers = {
         headers: { 'Content-Type': 'application/json' }
     };
 
-    // const registerRes = http.post('http://localhost:8088/users/register', registerPayload, headers);
-
-    // check(registerRes, {
-    //     'register status is 201 or 200': (r) => r.status === 201 || r.status === 200,
-    // });
 
     // 2. Login User
     const loginPayload = JSON.stringify({
@@ -58,19 +47,7 @@ export default function () {
     //     'verify status is 200 or 400': (r) => r.status === 200 || r.status === 400, // 400 if invalid code
     // });
 
-    // // 4. Create Admin
-    // const adminPayload = JSON.stringify({
-    //     name: 'Admin User',
-    //     email: 'admin@example.com',
-    //     password: 'adminpass123',
-    //     role: 'admin'
-    // });
-
-    // const adminRes = http.post('http://localhost:8088/admin/create', adminPayload, headers);
-
-    // check(adminRes, {
-    //     'admin create status is 201 or 200': (r) => r.status === 201 || r.status === 200,
-    // });
+   
 
     sleep(1);
 }

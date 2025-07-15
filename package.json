@@ -13,7 +13,10 @@
       "smoke:login": "k6 run load-tests/smoke/login.smoke.ts",
       "smoke:register": "k6 run load-tests/smoke/register.smoke.ts",
       "smoke:booking": "k6 run load-tests/smoke/booking.smoke.ts",
-      "smoke:event": "k6 run load-tests/smoke/event.smoke.ts"
+      "smoke:event": "k6 run load-tests/smoke/event.smoke.ts",
+      "load:event": "k6 run load-tests/load/event.load.get.ts",
+      "load:user": "k6 run load-tests/load/user.load.ts",
+      "load:booking": "k6 run load-tests/load/booking.load.get.ts"
   },
   "keywords": [],
   "author": "",

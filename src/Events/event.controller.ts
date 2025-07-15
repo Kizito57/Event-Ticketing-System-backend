@@ -5,9 +5,16 @@ import * as eventService from './event.service';
 export const getAllEvents = async (req: Request, res: Response) => {
     try {
         const events = await eventService.getAll();
-        res.status(200).json(events);
+        res.status(200).json({
+            success: true,
+            data: events,
+            count: events.length
+        });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 };
 
@@ -18,12 +25,21 @@ export const getEventById = async (req: Request, res: Response) => {
         const event = await eventService.getById(eventId);
         
         if (!event) {
-            return res.status(404).json({ error: "Event not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Event not found" 
+            });
         }
         
-        res.status(200).json(event);
+        res.status(200).json({
+            success: true,
+            data: event
+        });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 };
 
@@ -38,15 +54,22 @@ export const createEvent = async (req: Request, res: Response) => {
 
         const newEvent = await eventService.create(eventData);
         if (!newEvent) {
-            return res.status(400).json({ error: "Event creation failed" });
+            return res.status(400).json({ 
+                success: false,
+                error: "Event creation failed" 
+            });
         }
 
-        res.status(201).json({ 
+        res.status(201).json({
+            success: true,
             message: "Event created successfully",
-            event: newEvent
+            data: newEvent
         });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 };
 
@@ -61,15 +84,22 @@ export const updateEvent = async (req: Request, res: Response) => {
 
         const updated = await eventService.update(eventId, updateData);
         if (!updated) {
-            return res.status(404).json({ error: "Event not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Event not found" 
+            });
         }
 
         res.status(200).json({
+            success: true,
             message: "Event updated successfully",
-            event: updated
+            data: updated
         });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 };
 
@@ -80,11 +110,20 @@ export const deleteEvent = async (req: Request, res: Response) => {
         const deleted = await eventService.remove(eventId);
         
         if (!deleted) {
-            return res.status(404).json({ error: "Event not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Event not found" 
+            });
         }
 
-        res.status(200).json({ message: "Event deleted successfully" });
+        res.status(200).json({ 
+            success: true,
+            message: "Event deleted successfully" 
+        });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 };
