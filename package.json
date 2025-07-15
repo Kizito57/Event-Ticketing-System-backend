@@ -10,8 +10,10 @@
     "start": "npm run build && node dist/index.js",
     "studio": "drizzle-kit studio",
     "push": "drizzle-kit push",
-      "smoke:user": "k6 run load-tests/smoke/user.smoke.ts",
-      "smoke:booking": "k6 run load-tests/smoke/booking.smoke.ts"
+      "smoke:login": "k6 run load-tests/smoke/login.smoke.ts",
+      "smoke:register": "k6 run load-tests/smoke/register.smoke.ts",
+      "smoke:booking": "k6 run load-tests/smoke/booking.smoke.ts",
+      "smoke:event": "k6 run load-tests/smoke/event.smoke.ts"
   },
   "keywords": [],
   "author": "",
