@@ -5,10 +5,10 @@ const BASE_URL = 'http://localhost:8088';
 const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJfaWQiOjMsImZpcnN0X25hbWUiOiJKb2huIiwibGFzdF9uYW1lIjoiSm9obiIsImVtYWlsIjoiZGVpdHkwNDdAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzUyOTk5OTgwLCJpYXQiOjE3NTI3NDA3ODB9.Hwq089pfar5i7bFj00MdWUe5Qkt9nVnJt5f07Hy6xAk';
 
 export const options = {
-    stages: [
-        { duration: '30s', target: 40 }, // Ramp-up to 40 users in 20s
-        { duration: '40s', target: 50 }, // Stay at 50 users for 30s
-        { duration: '10s', target: 0 },  // Ramp-down to 0 users
+      stages: [
+        { duration: '1m', target: 20 },   // ramp-up to 20 users over 2 minutes
+        { duration: '3m', target: 20 },  // stay at 20 users for 56 minutes (total 58m)
+        { duration: '40s', target: 0 },    // ramp-down to 0 users
     ],
     ext: {
         loadimpact: {
@@ -16,7 +16,6 @@ export const options = {
         },
     },
 };
-
 export default function () {
     const res = http.get(`${BASE_URL}/users`, {
         headers: {
@@ -39,3 +38,4 @@ export default function () {
 
     sleep(1);
 }
+

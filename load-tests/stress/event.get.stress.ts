@@ -4,14 +4,12 @@ import { check, sleep } from 'k6';
 const BASE_URL = 'http://localhost:8088';
 
 export const options = {
-    stages: [
-        { duration: '30s', target: 50 },    // ramp-up to 50 users
-        { duration: '30s', target: 100 },   // ramp-up to 100 users
-        { duration: '30s', target: 200 },   // ramp-up to 200 users
-        { duration: '30s', target: 400 },   // ramp-up to 400 users
-        { duration: '30s', target: 800 },   // ramp-up to 800 users
-        { duration: '30s', target: 1600 },  // ramp-up to 1600 users (keep increasing)
-        { duration: '30s', target: 0 },     // ramp-down to 0 users
+ stages: [
+        { duration: '30s', target: 20 },   // ramp-up to 20 users
+        { duration: '30s', target: 100 },  // ramp-up to 100 users
+        { duration: '30s', target: 200 },  // ramp-up to 200 users
+        { duration: '1m', target: 300 },   // spike to 300 users
+        { duration: '30s', target: 0 },    // ramp-down to 0 users
     ],
     ext: {
         loadimpact: {
