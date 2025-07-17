@@ -6,10 +6,13 @@ import  supportTicketRoutes from './Supportticket/support-ticket.router';
 import  eventRoutes from './Events/event.router';
 import venueRoutes from './Venue/venue.router';
 
-
+import cors from "cors";
+import uploadRouter from './uploads/upload.router';
 
 const app = express();
 app.use(express.json()); //used to parse JSON bodies
+app.use(cors());
+
 
 
 
@@ -21,6 +24,8 @@ eventRoutes(app);
 venueRoutes(app);
 paymentsRoutes(app);
 supportTicketRoutes(app);
+
+app.use('/api/upload', uploadRouter);
 
 
 app.listen(8088, () => {
