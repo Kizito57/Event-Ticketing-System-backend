@@ -46,6 +46,7 @@ export const EventsTable = pgTable("events", {
   date: date("date").notNull(),
   time: time("time").notNull(),
   ticket_price: decimal("ticket_price", { precision: 10, scale: 2 }).notNull(),
+   image_url: varchar("image_url", { length: 500 }),
   tickets_total: integer("tickets_total").notNull(),
   tickets_sold: integer("tickets_sold").notNull().default(0),
   created_at: timestamp("created_at").notNull().defaultNow(),
