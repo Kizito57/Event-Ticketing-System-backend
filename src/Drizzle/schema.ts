@@ -6,7 +6,7 @@ import { pgEnum } from "drizzle-orm/pg-core";
 
 export const userRoleEnum = pgEnum("role_enum", ["user", "admin"]);
 export const ticketStatusEnum = pgEnum("ticket_status_enum", ["pending", "confirmed", "cancelled"]);
-
+export const paymentMethodEnum = pgEnum("payment_method_enum", ["mpesa", "card", "bank"]);
 
 // Users Table
 export const UsersTable = pgTable("users", {
@@ -45,8 +45,8 @@ export const EventsTable = pgTable("events", {
   category: varchar("category", { length: 50 }).notNull(),
   date: date("date").notNull(),
   time: time("time").notNull(),
+  image_url: varchar("image_url", { length: 500 }),
   ticket_price: decimal("ticket_price", { precision: 10, scale: 2 }).notNull(),
-   image_url: varchar("image_url", { length: 500 }),
   tickets_total: integer("tickets_total").notNull(),
   tickets_sold: integer("tickets_sold").notNull().default(0),
   created_at: timestamp("created_at").notNull().defaultNow(),
@@ -72,11 +72,13 @@ export const PaymentsTable = pgTable("payments", {
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   payment_status: varchar("payment_status", { length: 20 }).notNull().default("Pending"),
   payment_date: timestamp("payment_date").notNull(),
-  payment_method: varchar("payment_method", { length: 50 }),
+  payment_method: varchar("payment_method").notNull(),
   transaction_id: varchar("transaction_id", { length: 100 }),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow()
 });
+
+
 
 // Support Tickets Table
 export const SupportTicketsTable = pgTable("support_tickets", {

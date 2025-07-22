@@ -67,3 +67,17 @@ export const remove = async (id: number): Promise<boolean> => {
     throw new Error(`Failed to delete payment: ${error.message}`);
   }
 };
+
+
+export const getByTransactionId = async (transactionId: string): Promise<TSPayment | undefined> => {
+  try {
+    const result = await db
+      .select()
+      .from(PaymentsTable)
+      .where(eq(PaymentsTable.transaction_id, transactionId))
+    return result[0]
+  } catch (error: any) {
+    throw new Error(`Failed to fetch payment by transaction ID: ${error.message}`)
+  }
+}
+

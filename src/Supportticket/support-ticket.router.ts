@@ -19,6 +19,15 @@ const supportTicketRoutes = (app: Express) => {
             next(error);
         }
     });
+     
+    // Get support tickets by user ID (Admin or self)
+    app.get("/support-tickets/user/:userId", authenticated, async (req, res, next) => {
+        try {
+            await getSupportTicketsByUserId(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });
         
     // Get support ticket by ID (Admin or ticket owner)
     app.get("/support-tickets/:id", authenticated, async (req, res, next) => {
@@ -28,15 +37,7 @@ const supportTicketRoutes = (app: Express) => {
             next(error);
         }
     });
-    
-    // Get support tickets by user ID (Admin or self)
-    app.get("/support-tickets/user/:userId", authenticated, async (req, res, next) => {
-        try {
-            await getSupportTicketsByUserId(req, res);
-        } catch (error) {
-            next(error);
-        }
-    });
+   
     
     // Create support ticket (Authenticated users)
     app.post("/support-tickets", authenticated, async (req, res, next) => {

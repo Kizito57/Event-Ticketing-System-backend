@@ -5,7 +5,7 @@ import paymentsRoutes from './Payments/payment.router';
 import  supportTicketRoutes from './Supportticket/support-ticket.router';
 import  eventRoutes from './Events/event.router';
 import venueRoutes from './Venue/venue.router';
-
+import mpesaRoutes from "./mpesa/mpesa.router";
 import cors from "cors";
 import uploadRouter from './uploads/upload.router';
 
@@ -26,6 +26,7 @@ paymentsRoutes(app);
 supportTicketRoutes(app);
 
 app.use('/api/upload', uploadRouter);
+app.use('/api/mpesa', mpesaRoutes);
 
 
 app.listen(8088, () => {
