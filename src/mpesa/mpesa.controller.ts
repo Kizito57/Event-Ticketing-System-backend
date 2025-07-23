@@ -5,27 +5,56 @@ import {
 } from "./mpesa.service";
 
 // STK Push Controller
-export const stkPushController: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+// export const stkPushController: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { phoneNumber, amount, paymentId } = req.body;
+
+//     if (!phoneNumber || !amount || !paymentId) {
+//       res.status(400).json({ success: false, message: "Missing required fields" });
+//       return;
+//     }
+
+//     const data = await initiateStkPush({
+//       phoneNumber,
+//       amount: Number(amount),
+//       paymentId: Number(paymentId),
+//     });
+
+//     res.json({ success: true, data });
+//   } catch (error) {
+//     console.error("STK Push Error:", (error as Error).message);
+//     res.status(500).json({ success: false, message: "STK push failed" });
+//   }
+// };
+
+export const stkPushController: RequestHandler = async (req, res) => {
   try {
-    const { phoneNumber, amount, paymentId } = req.body;
+    const { phoneNumber, amount, paymentId } = req.body
 
     if (!phoneNumber || !amount || !paymentId) {
-      res.status(400).json({ success: false, message: "Missing required fields" });
-      return;
+      res.status(400).json({ success: false, message: "Missing required fields" })
+      return
+    }
+
+    // ✅ Validate format (e.g., 254712345678)
+    if (!/^2547\d{8}$/.test(phoneNumber)) {
+      res.status(400).json({ success: false, message: "Invalid phone number format" })
+      return
     }
 
     const data = await initiateStkPush({
       phoneNumber,
       amount: Number(amount),
       paymentId: Number(paymentId),
-    });
+    })
 
-    res.json({ success: true, data });
+    res.json({ success: true, data })
   } catch (error) {
-    console.error("STK Push Error:", (error as Error).message);
-    res.status(500).json({ success: false, message: "STK push failed" });
+    console.error("STK Push Error:", (error as Error).message)
+    res.status(500).json({ success: false, message: "STK push failed" })
   }
-};
+}
+
 
 export const mpesaCallbackController: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
