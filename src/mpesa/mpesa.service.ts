@@ -40,9 +40,7 @@ export const initiateStkPush = async ({
   )
 
   console.log("STK Push response from Safaricom:", response.data)
-console.log("MPESA CALLBACK URL:", `${process.env.MPESA_CALLBACK_URL}?payment_id=${paymentId}`);
-console.log("Phone Number:", normalizedPhone);
-console.log("AccessToken:", token);
+
   // ✅ Check for M-Pesa errors
   if (response.data.ResponseCode !== "0") {
     throw new Error(`M-Pesa Error: ${response.data.ResponseDescription}`)
