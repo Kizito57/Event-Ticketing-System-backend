@@ -8,6 +8,8 @@ import venueRoutes from './Venue/venue.router';
 import mpesaRoutes from "./mpesa/mpesa.router";
 import cors from "cors";
 import uploadRouter from './uploads/upload.router';
+import ticketMessageRoutes from './TicketMessages/ticketMessages.router';
+
 
 const app = express();
 app.use(express.json()); //used to parse JSON bodies
@@ -24,6 +26,7 @@ eventRoutes(app);
 venueRoutes(app);
 paymentsRoutes(app);
 supportTicketRoutes(app);
+ticketMessageRoutes(app);
 
 app.use('/api/upload', uploadRouter);
 app.use('/api/mpesa', mpesaRoutes);
