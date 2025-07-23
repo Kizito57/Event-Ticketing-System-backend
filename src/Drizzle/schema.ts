@@ -1,9 +1,11 @@
 import { relations } from "drizzle-orm";
-import { text, varchar, serial, pgTable, decimal, integer, boolean, date, time, timestamp } from "drizzle-orm/pg-core";
+import {
+  text, varchar, serial, pgTable, decimal, integer, boolean,
+  date, time, timestamp
+} from "drizzle-orm/pg-core";
 import { pgEnum } from "drizzle-orm/pg-core";
 
-
-
+// Enums
 export const userRoleEnum = pgEnum("role_enum", ["user", "admin"]);
 export const ticketStatusEnum = pgEnum("ticket_status_enum", ["pending", "confirmed", "cancelled"]);
 export const paymentMethodEnum = pgEnum("payment_method_enum", ["mpesa", "card", "bank"]);
@@ -17,7 +19,7 @@ export const UsersTable = pgTable("users", {
   contact_phone: text("contact_phone"),
   password: varchar("password", { length: 255 }).notNull(),
   address: varchar("address", { length: 255 }),
-  role: varchar("role", { length: 50 }).notNull().default("user"), // assume enum 'user', 'admin'
+  role: varchar("role", { length: 50 }).notNull().default("user"),
   verification_code: varchar("verification_code", { length: 10 }),
   is_verified: boolean("is_verified").default(false),
   image_url: varchar("image_url", { length: 500 }),
@@ -68,7 +70,7 @@ export const BookingsTable = pgTable("bookings", {
 // Payments Table
 export const PaymentsTable = pgTable("payments", {
   payment_id: serial("payment_id").primaryKey(),
-  booking_id: integer("booking_id").notNull().references(() => BookingsTable.booking_id, { onDelete: "cascade" }) .unique(),
+  booking_id: integer("booking_id").notNull().references(() => BookingsTable.booking_id, { onDelete: "cascade" }).unique(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   payment_status: varchar("payment_status", { length: 20 }).notNull().default("Pending"),
   payment_date: timestamp("payment_date").notNull(),
@@ -78,24 +80,31 @@ export const PaymentsTable = pgTable("payments", {
   updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
-
-
 // Support Tickets Table
 export const SupportTicketsTable = pgTable("support_tickets", {
   ticket_id: serial("ticket_id").primaryKey(),
   user_id: integer("user_id").notNull().references(() => UsersTable.user_id, { onDelete: "cascade" }),
   subject: varchar("subject", { length: 150 }).notNull(),
   description: text("description").notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("Open"),//enum 'Open', 'In Progress', 'Closed'
+  status: varchar("status", { length: 20 }).notNull().default("Open"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow()
 });
 
-// RELATIONSHIPS
+// Ticket Messages Table (NEW)
+export const TicketMessagesTable = pgTable("ticket_messages", {
+  message_id: serial("message_id").primaryKey(),
+  ticket_id: integer("ticket_id").notNull().references(() => SupportTicketsTable.ticket_id, { onDelete: "cascade" }),
+  sender_id: integer("sender_id").notNull().references(() => UsersTable.user_id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow()
+});
 
+// RELATIONSHIPS
 export const UsersRelations = relations(UsersTable, ({ many }) => ({
   bookings: many(BookingsTable),
-  supportTickets: many(SupportTicketsTable)
+  supportTickets: many(SupportTicketsTable),
+  ticketMessages: many(TicketMessagesTable),
 }));
 
 export const VenuesRelations = relations(VenuesTable, ({ many }) => ({
@@ -129,15 +138,26 @@ export const PaymentsRelations = relations(PaymentsTable, ({ one }) => ({
   })
 }));
 
-export const SupportTicketsRelations = relations(SupportTicketsTable, ({ one }) => ({
+export const SupportTicketsRelations = relations(SupportTicketsTable, ({ one, many }) => ({
   user: one(UsersTable, {
     fields: [SupportTicketsTable.user_id],
     references: [UsersTable.user_id]
-  })
+  }),
+  messages: many(TicketMessagesTable),
+}));
+
+export const TicketMessagesRelations = relations(TicketMessagesTable, ({ one }) => ({
+  ticket: one(SupportTicketsTable, {
+    fields: [TicketMessagesTable.ticket_id],
+    references: [SupportTicketsTable.ticket_id]
+  }),
+  sender: one(UsersTable, {
+    fields: [TicketMessagesTable.sender_id],
+    references: [UsersTable.user_id]
+  }),
 }));
 
 // TYPES
-
 export type TIUser = typeof UsersTable.$inferInsert;
 export type TSUser = typeof UsersTable.$inferSelect;
 
@@ -155,3 +175,6 @@ export type TSPayment = typeof PaymentsTable.$inferSelect;
 
 export type TISupportTicket = typeof SupportTicketsTable.$inferInsert;
 export type TSSupportTicket = typeof SupportTicketsTable.$inferSelect;
+
+export type TITicketMessage = typeof TicketMessagesTable.$inferInsert;
+export type TSTicketMessage = typeof TicketMessagesTable.$inferSelect;
