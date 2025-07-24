@@ -7,6 +7,7 @@ import  eventRoutes from './Events/event.router';
 import venueRoutes from './Venue/venue.router';
 import mpesaRoutes from "./mpesa/mpesa.router";
 import cors from "cors";
+import path from 'path';
 import uploadRouter from './uploads/upload.router';
 import ticketMessageRoutes from './TicketMessages/ticketMessages.router';
 
@@ -15,7 +16,8 @@ const app = express();
 app.use(express.json()); //used to parse JSON bodies
 app.use(cors());
 
-
+// Serves static uploads folder
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 
 
