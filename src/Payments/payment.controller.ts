@@ -10,16 +10,6 @@ export const getAllPayments = async (req: Request, res: Response) => {
         res.status(500).json({ error: error.message });
     }
 };
-// GET payments by user ID (Users can only see their own payments)
-export const getPaymentsByUserId = async (req: Request, res: Response) => {
-    try {
-        const userId = Number(req.params.userId);
-        const payments = await paymentService.getByUserId(userId);
-        res.status(200).json(payments);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-};
 
 // GET payment by ID (Admin only)
 export const getPaymentById = async (req: Request, res: Response) => {
@@ -114,4 +104,20 @@ export const deletePayment = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
+};
+
+// GET all payments by User ID
+export const getPaymentsByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = Number(req.params.userId);
+    const payments = await paymentService.getByUserId(userId);
+
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ error: "No payments found for this user" });
+    }
+
+    res.status(200).json(payments);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 };

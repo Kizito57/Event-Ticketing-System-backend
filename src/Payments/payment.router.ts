@@ -6,6 +6,7 @@ import {
     createPayment,
     updatePayment,
     deletePayment,
+    getPaymentsByUserId,
 } from "./payment.controller";
 import { adminOnly, authenticated } from "../Middleware/bearAuth";
 
@@ -37,6 +38,16 @@ const paymentRoutes = (app: Express) => {
             next(error);
         }
     });
+    
+    // Get payments by user ID (Authenticated users)
+app.get("/payments/user/:userId", authenticated, async (req, res, next) => {
+  try {
+    await getPaymentsByUserId(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
     // Create payment (Authenticated users)
     app.post("/payments", authenticated, async (req, res, next) => {
@@ -65,5 +76,7 @@ const paymentRoutes = (app: Express) => {
         }
     });
 };
+
+
 
 export default paymentRoutes;
