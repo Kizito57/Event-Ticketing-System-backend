@@ -3,7 +3,6 @@ import {
     getAllPayments,
     getPaymentById,
     getPaymentByBookingId,
-    getPaymentsByUserId,  // Add this new function
     createPayment,
     updatePayment,
     deletePayment,
@@ -13,18 +12,9 @@ import { adminOnly, authenticated } from "../Middleware/bearAuth";
 const paymentRoutes = (app: Express) => {
 
     // Get all payments (Admin only)
-    app.get("/payments", authenticated, adminOnly, async (req, res, next) => {
+    app.get("/payments", authenticated, async (req, res, next) => {
         try {
             await getAllPayments(req, res);
-        } catch (error) {
-            next(error);
-        }
-    });
-
-    // Get payments by user ID (Authenticated users - their own payments only)
-    app.get("/payments/user/:userId", authenticated, async (req, res, next) => {
-        try {
-            await getPaymentsByUserId(req, res);
         } catch (error) {
             next(error);
         }
