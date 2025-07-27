@@ -10,6 +10,16 @@ export const getAllPayments = async (req: Request, res: Response) => {
         res.status(500).json({ error: error.message });
     }
 };
+// GET payments by user ID (Users can only see their own payments)
+export const getPaymentsByUserId = async (req: Request, res: Response) => {
+    try {
+        const userId = Number(req.params.userId);
+        const payments = await paymentService.getByUserId(userId);
+        res.status(200).json(payments);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 // GET payment by ID (Admin only)
 export const getPaymentById = async (req: Request, res: Response) => {
@@ -22,17 +32,6 @@ export const getPaymentById = async (req: Request, res: Response) => {
         }
         
         res.status(200).json(payment);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// GET payments by user ID (Authenticated users)
-export const getPaymentsByUserId = async (req: Request, res: Response) => {
-    try {
-        const userId = Number(req.params.userId);
-        const payments = await paymentService.getByUserId(userId);
-        res.status(200).json(payments);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
