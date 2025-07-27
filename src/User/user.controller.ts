@@ -4,6 +4,11 @@ import * as userService from './user.service';
 import jwt from 'jsonwebtoken';
 import { sendWelcomeEmail, sendVerificationEmail } from '../mailer/email.service';
 
+// Utility function to standardize error responses
+const handleServerError = (res: Response, error: any, message = 'Something went wrong') => {
+    console.error('Internal Server Error:', error);
+    res.status(500).json({ error: message });
+};
 
 // GET all users (Admin only)
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -11,7 +16,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
         const users = await userService.getAll();
         res.status(200).json(users);
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Failed to retrieve users");
     }
 };
 
@@ -20,8 +25,7 @@ export const getUserById = async (req: Request, res: Response) => {
     try {
         const requestedId = Number(req.params.id);
         const user = (req as any).user;
-        
-        // Allow admin to see any user, or user to see their own profile
+
         if (user.role !== 'admin' && user.user_id !== requestedId) {
             return res.status(403).json({ error: "Access denied" });
         }
@@ -30,12 +34,11 @@ export const getUserById = async (req: Request, res: Response) => {
         if (!foundUser) {
             return res.status(404).json({ error: "User not found" });
         }
-        
-        // Remove password from response
+
         const { password, ...userData } = foundUser;
         res.status(200).json(userData);
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Failed to retrieve user");
     }
 };
 
@@ -43,20 +46,18 @@ export const getUserById = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     try {
         const { password, ...userData } = req.body;
-        
+
         if (!password) {
             return res.status(400).json({ error: "Password is required" });
         }
 
-        // Generate verification code
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Hash password and set role
         const hashedPassword = bcrypt.hashSync(password, 10);
+
         const newUserData = {
             ...userData,
             password: hashedPassword,
-            role: 'user',     
+            role: 'user',
             verification_code: verificationCode,
             is_verified: false
         };
@@ -66,13 +67,12 @@ export const createUser = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "User registration failed" });
         }
 
-        // Send verification email
         const userName = `${newUser.first_name} ${newUser.last_name}`;
         sendVerificationEmail(newUser.email, userName, verificationCode)
             .then(() => console.log(`Verification email sent to ${newUser.email}`))
             .catch(err => console.error('Verification email send failed:', err.message));
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: "User registered successfully. Please check your email for verification code.",
             user: {
                 user_id: newUser.user_id,
@@ -87,7 +87,7 @@ export const createUser = async (req: Request, res: Response) => {
         if (error.message.includes('Email already exists')) {
             return res.status(400).json({ error: "Email already registered" });
         }
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Failed to create user");
     }
 };
 
@@ -113,21 +113,19 @@ export const verifyEmail = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "Invalid verification code" });
         }
 
-        // Update user as verified
-        const updated = await userService.update(user.user_id, { 
-            is_verified: true, 
-            verification_code: null 
+        const updated = await userService.update(user.user_id, {
+            is_verified: true,
+            verification_code: null
         });
 
         if (updated) {
-            // Send welcome email after verification
             const userName = `${user.first_name} ${user.last_name}`;
             sendWelcomeEmail(user.email, userName)
                 .then(() => console.log(`Welcome email sent to ${user.email}`))
                 .catch(err => console.error('Welcome email send failed:', err.message));
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: "Email verified successfully",
             user: {
                 user_id: updated?.user_id,
@@ -139,26 +137,25 @@ export const verifyEmail = async (req: Request, res: Response) => {
             }
         });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Email verification failed");
     }
 };
 
-// CREATE admin 
+// CREATE admin
 export const createAdmin = async (req: Request, res: Response) => {
     try {
         const { password, ...adminData } = req.body;
-        
+
         if (!password) {
             return res.status(400).json({ error: "Password is required" });
         }
 
-        // Hash password and set role
         const hashedPassword = bcrypt.hashSync(password, 10);
         const newAdminData = {
             ...adminData,
             password: hashedPassword,
             role: 'admin',
-            is_verified: true // Admin is verified by default
+            is_verified: true
         };
 
         const newAdmin = await userService.create(newAdminData);
@@ -166,13 +163,12 @@ export const createAdmin = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "Admin creation failed" });
         }
 
-        // Send welcome email for admin too
         const adminName = `${newAdmin.first_name} ${newAdmin.last_name}`;
         sendWelcomeEmail(newAdmin.email, adminName)
             .then(() => console.log(`Welcome email sent to admin ${newAdmin.email}`))
             .catch(err => console.error('Admin email send failed:', err.message));
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: "Admin created successfully",
             admin: {
                 user_id: newAdmin.user_id,
@@ -187,11 +183,11 @@ export const createAdmin = async (req: Request, res: Response) => {
         if (error.message.includes('Email already exists')) {
             return res.status(400).json({ error: "Email already registered" });
         }
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Failed to create admin");
     }
 };
 
-// User login (works for both users and admins)
+// User login
 export const loginUser = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
@@ -200,24 +196,20 @@ export const loginUser = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "Email and password are required" });
         }
 
-        // Check if user exists (user or admin)
         const user = await userService.getByEmail(email);
         if (!user) {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
-        // Check if email is verified (except for admin)
         if (user.role !== 'admin' && !user.is_verified) {
             return res.status(401).json({ error: "Please verify your email before logging in" });
         }
 
-        // Verify password
         const passwordMatch = bcrypt.compareSync(password, user.password as string);
         if (!passwordMatch) {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
-        // Create JWT token
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             throw new Error("JWT_SECRET not configured");
@@ -230,7 +222,7 @@ export const loginUser = async (req: Request, res: Response) => {
             last_name: user.last_name,
             email: user.email,
             role: user.role,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 3) // 3 days
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 3)
         };
 
         const token = jwt.sign(payload, secret);
@@ -252,31 +244,25 @@ export const loginUser = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Login failed. Please try again.");
     }
 };
 
-// // Legacy function for backward compatibility
-// export const loginCustomer = loginUser;
-
-// UPDATE user (Admin or self)
+// UPDATE user
 export const updateUser = async (req: Request, res: Response) => {
     try {
         const userId = Number(req.params.id);
         const user = (req as any).user;
         const updateData = { ...req.body };
 
-        // Authorization check
         if (user.role !== 'admin' && user.user_id !== userId) {
             return res.status(403).json({ error: "Access denied" });
         }
 
-        // Hash password if being updated
         if (updateData.password) {
             updateData.password = bcrypt.hashSync(updateData.password, 10);
         }
 
-        // Only admin can change roles and verification status
         if (user.role !== 'admin') {
             delete updateData.role;
             delete updateData.is_verified;
@@ -288,7 +274,6 @@ export const updateUser = async (req: Request, res: Response) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Remove password from response
         const { password, ...userData } = updated;
         res.status(200).json({
             message: "User updated successfully",
@@ -298,22 +283,22 @@ export const updateUser = async (req: Request, res: Response) => {
         if (error.message.includes('Email already exists')) {
             return res.status(400).json({ error: "Email already in use" });
         }
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Failed to update user");
     }
 };
 
-// DELETE user (Admin only)
+// DELETE user
 export const deleteUser = async (req: Request, res: Response) => {
     try {
         const userId = Number(req.params.id);
         const deleted = await userService.remove(userId);
-        
+
         if (!deleted) {
             return res.status(404).json({ error: "User not found" });
         }
 
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
-        res.status(500).json({ error: error.message });
+        handleServerError(res, error, "Failed to delete user");
     }
 };

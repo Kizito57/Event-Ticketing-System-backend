@@ -10,10 +10,11 @@ export const getAllEvents = async (req: Request, res: Response) => {
             data: events,
             count: events.length
         });
-    } catch (error: any) {
-        res.status(500).json({ 
+    } catch (error) {
+        console.error('Get All Events Error:', error);
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: 'An unexpected error occurred while fetching events.'
         });
     }
 };
@@ -23,22 +24,23 @@ export const getEventById = async (req: Request, res: Response) => {
     try {
         const eventId = Number(req.params.id);
         const event = await eventService.getById(eventId);
-        
+
         if (!event) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                error: "Event not found" 
+                error: 'Event not found'
             });
         }
-        
+
         res.status(200).json({
             success: true,
             data: event
         });
-    } catch (error: any) {
-        res.status(500).json({ 
+    } catch (error) {
+        console.error('Get Event By ID Error:', error);
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: 'An unexpected error occurred while fetching the event.'
         });
     }
 };
@@ -54,21 +56,22 @@ export const createEvent = async (req: Request, res: Response) => {
 
         const newEvent = await eventService.create(eventData);
         if (!newEvent) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: "Event creation failed" 
+                error: 'Event creation failed'
             });
         }
 
         res.status(201).json({
             success: true,
-            message: "Event created successfully",
+            message: 'Event created successfully',
             data: newEvent
         });
-    } catch (error: any) {
-        res.status(500).json({ 
+    } catch (error) {
+        console.error('Create Event Error:', error);
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: 'An unexpected error occurred while creating the event.'
         });
     }
 };
@@ -84,21 +87,22 @@ export const updateEvent = async (req: Request, res: Response) => {
 
         const updated = await eventService.update(eventId, updateData);
         if (!updated) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                error: "Event not found" 
+                error: 'Event not found'
             });
         }
 
         res.status(200).json({
             success: true,
-            message: "Event updated successfully",
+            message: 'Event updated successfully',
             data: updated
         });
-    } catch (error: any) {
-        res.status(500).json({ 
+    } catch (error) {
+        console.error('Update Event Error:', error);
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: 'An unexpected error occurred while updating the event.'
         });
     }
 };
@@ -108,22 +112,23 @@ export const deleteEvent = async (req: Request, res: Response) => {
     try {
         const eventId = Number(req.params.id);
         const deleted = await eventService.remove(eventId);
-        
+
         if (!deleted) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                error: "Event not found" 
+                error: 'Event not found'
             });
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             success: true,
-            message: "Event deleted successfully" 
+            message: 'Event deleted successfully'
         });
-    } catch (error: any) {
-        res.status(500).json({ 
+    } catch (error) {
+        console.error('Delete Event Error:', error);
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: 'An unexpected error occurred while deleting the event.'
         });
     }
 };
