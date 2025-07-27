@@ -1,6 +1,6 @@
 // payment.service.ts
 import db from '../Drizzle/db';
-import { PaymentsTable } from '../Drizzle/schema';
+import { PaymentsTable, BookingsTable } from '../Drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { TIPayment, TSPayment } from '../Drizzle/schema';
 
@@ -20,6 +20,30 @@ export const getById = async (id: number): Promise<TSPayment | undefined> => {
     return result[0];
   } catch (error: any) {
     throw new Error(`Failed to fetch payment by ID: ${error.message}`);
+  }
+};
+
+// Get payments by user ID
+export const getByUserId = async (userId: number): Promise<TSPayment[]> => {
+  try {
+    const result = await db
+      .select({
+        payment_id: PaymentsTable.payment_id,
+        booking_id: PaymentsTable.booking_id,
+        amount: PaymentsTable.amount,
+        payment_status: PaymentsTable.payment_status,
+        payment_date: PaymentsTable.payment_date,
+        payment_method: PaymentsTable.payment_method,
+        transaction_id: PaymentsTable.transaction_id,
+        created_at: PaymentsTable.created_at,
+        updated_at: PaymentsTable.updated_at
+      })
+      .from(PaymentsTable)
+      .innerJoin(BookingsTable, eq(PaymentsTable.booking_id, BookingsTable.booking_id))
+      .where(eq(BookingsTable.user_id, userId));
+    return result;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch payments by user ID: ${error.message}`);
   }
 };
 
@@ -68,7 +92,6 @@ export const remove = async (id: number): Promise<boolean> => {
   }
 };
 
-
 export const getByTransactionId = async (transactionId: string): Promise<TSPayment | undefined> => {
   try {
     const result = await db
@@ -80,4 +103,3 @@ export const getByTransactionId = async (transactionId: string): Promise<TSPayme
     throw new Error(`Failed to fetch payment by transaction ID: ${error.message}`)
   }
 }
-

@@ -27,6 +27,17 @@ export const getPaymentById = async (req: Request, res: Response) => {
     }
 };
 
+// GET payments by user ID (Authenticated users)
+export const getPaymentsByUserId = async (req: Request, res: Response) => {
+    try {
+        const userId = Number(req.params.userId);
+        const payments = await paymentService.getByUserId(userId);
+        res.status(200).json(payments);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // GET payment by booking ID (Admin only)
 export const getPaymentByBookingId = async (req: Request, res: Response) => {
     try {
