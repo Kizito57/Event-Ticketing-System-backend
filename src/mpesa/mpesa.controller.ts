@@ -43,31 +43,31 @@ export const mpesaCallbackController: RequestHandler = async (req: Request, res:
     const paymentId = Number(paymentIdParam);
 
     if (isNaN(paymentId)) {
-      console.error("Invalid payment_id in callback:", paymentIdParam)
+      console.error("❌ Invalid payment_id in callback:", paymentIdParam)
       res.status(400).json({ message: "Invalid or missing payment_id" });
       return;
     }
 
-    console.log("Processing callback for payment ID:", paymentId)
+    console.log("✅ Processing callback for payment ID:", paymentId)
 
     // Check if this is a valid M-Pesa callback structure
     if (!req.body || !req.body.Body) {
-      console.error("Invalid callback structure - missing Body")
+      console.error("❌ Invalid callback structure - missing Body")
       res.status(400).json({ message: "Invalid callback structure" });
       return;
     }
 
     await handleMpesaCallback(paymentId, req.body);
 
-    console.log("Callback processed successfully for payment:", paymentId)
+    console.log("✅ Callback processed successfully for payment:", paymentId)
     res.status(200).json({ 
       ResultCode: 0, 
       ResultDesc: "Callback processed successfully" 
     });
 
   } catch (error) {
-    console.error("Callback Error:", (error as Error).message);
-    console.error("Error stack:", (error as Error).stack);
+    console.error("❌ Callback Error:", (error as Error).message);
+    console.error("📊 Error stack:", (error as Error).stack);
     res.status(200).json({ 
       ResultCode: 1, 
       ResultDesc: "Failed to process callback" 
