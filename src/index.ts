@@ -14,7 +14,10 @@ import ticketMessageRoutes from './TicketMessages/ticketMessages.router';
 
 const app = express();
 app.use(express.json()); //used to parse JSON bodies
-app.use(cors());
+app.use(cors({
+        origin: '*',
+        methods: ["GET", "POST", "PUT", "DELETE"],
+    }))
 
 // Serves static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
