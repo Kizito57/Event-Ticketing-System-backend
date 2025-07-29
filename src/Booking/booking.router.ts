@@ -5,6 +5,7 @@ import {
     getBookingsByUserId,
     createBooking,
     updateBooking,
+    updateBookingStatus, // Add this import
     deleteBooking,
 } from "./booking.controller";
 import { adminOnly, authenticated } from "../Middleware/bearAuth";
@@ -42,6 +43,16 @@ const bookingRoutes = (app: Express) => {
     app.post("/bookings", authenticated, async (req, res, next) => {
         try {
             await createBooking(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });
+    
+    // Update booking status (Admin or booking owner) 
+  
+    app.patch("/bookings/:id/status", authenticated, async (req, res, next) => {
+        try {
+            await updateBookingStatus(req, res);
         } catch (error) {
             next(error);
         }

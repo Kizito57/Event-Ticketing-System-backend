@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as bookingService from './booking.service';
+import * as eventService from '../Events/event.service'; // You'll need to import your event service
 
 // GET all bookings (Admin only)
 export const getAllBookings = async (req: Request, res: Response) => {
@@ -55,6 +56,21 @@ export const getBookingsByUserId = async (req: Request, res: Response) => {
 export const createBooking = async (req: Request, res: Response) => {
     try {
         const user = (req as any).user;
+        const { event_id, quantity } = req.body;
+
+        // Check if event exists and has enough tickets
+        const event = await eventService.getById(event_id);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+
+        const availableTickets = event.tickets_total - (event.tickets_sold || 0);
+        if (quantity > availableTickets) {
+            return res.status(400).json({ 
+                error: `Not enough tickets available. Only ${availableTickets} tickets left.` 
+            });
+        }
+
         const bookingData = {
             ...req.body,
             user_id: user.user_id,
@@ -111,6 +127,90 @@ export const updateBooking = async (req: Request, res: Response) => {
     }
 };
 
+// UPDATE booking status (Admin or booking owner) - Enhanced for ticket management
+export const updateBookingStatus = async (req: Request, res: Response) => {
+    try {
+        const bookingId = Number(req.params.id);
+        const { status } = req.body;
+        const user = (req as any).user;
+        
+        const existingBooking = await bookingService.getById(bookingId);
+        if (!existingBooking) {
+            return res.status(404).json({ error: "Booking not found" });
+        }
+        
+        // Allow admin to update any booking, or user to update their own booking
+        if (user.role !== 'admin' && user.user_id !== existingBooking.user_id) {
+            return res.status(403).json({ error: "Access denied" });
+        }
+
+        const currentStatus = existingBooking.booking_status;
+        const newStatus = status;
+
+        // Handle ticket count updates based on status changes
+        if (currentStatus !== newStatus) {
+            const event = await eventService.getById(existingBooking.event_id);
+            if (!event) {
+                return res.status(404).json({ error: "Associated event not found" });
+            }
+
+            let ticketsSoldChange = 0;
+
+            // When booking is confirmed (from Pending to Confirmed)
+            if (currentStatus === 'Pending' && newStatus === 'Confirmed') {
+                ticketsSoldChange = existingBooking.quantity;
+                
+                // Check if there are enough tickets available
+                const availableTickets = event.tickets_total - (event.tickets_sold || 0);
+                if (existingBooking.quantity > availableTickets) {
+                    return res.status(400).json({ 
+                        error: `Not enough tickets available. Only ${availableTickets} tickets left.` 
+                    });
+                }
+            }
+            // When booking is cancelled (from Confirmed to Cancelled)
+            else if (currentStatus === 'Confirmed' && newStatus === 'Cancelled') {
+                ticketsSoldChange = -existingBooking.quantity;
+            }
+            // When booking is cancelled from Pending (no ticket count change needed)
+            else if (currentStatus === 'Pending' && newStatus === 'Cancelled') {
+                ticketsSoldChange = 0;
+            }
+
+            // Update event ticket counts if there's a change
+            if (ticketsSoldChange !== 0) {
+                const updatedTicketsSold = Math.max(0, (event.tickets_sold || 0) + ticketsSoldChange);
+                
+                await eventService.update(existingBooking.event_id, {
+                    tickets_sold: updatedTicketsSold,
+                    updated_at: new Date()
+                });
+
+                console.log(`Updated event ${existingBooking.event_id}: tickets_sold changed by ${ticketsSoldChange} to ${updatedTicketsSold}`);
+            }
+        }
+
+        // Update booking status
+        const updateData = {
+            booking_status: newStatus,
+            updated_at: new Date()
+        };
+
+        const updated = await bookingService.update(bookingId, updateData);
+        if (!updated) {
+            return res.status(404).json({ error: "Booking not found" });
+        }
+
+        res.status(200).json({
+            message: "Booking status updated successfully",
+            booking: updated
+        });
+    } catch (error: any) {
+        console.error('Error updating booking status:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // DELETE booking (Admin or booking owner)
 export const deleteBooking = async (req: Request, res: Response) => {
     try {
@@ -125,6 +225,21 @@ export const deleteBooking = async (req: Request, res: Response) => {
         // Allow admin to delete any booking, or user to delete their own booking
         if (user.role !== 'admin' && user.user_id !== existingBooking.user_id) {
             return res.status(403).json({ error: "Access denied" });
+        }
+
+        // If booking was confirmed, return the tickets to available pool
+        if (existingBooking.booking_status === 'Confirmed') {
+            const event = await eventService.getById(existingBooking.event_id);
+            if (event) {
+                const updatedTicketsSold = Math.max(0, (event.tickets_sold || 0) - existingBooking.quantity);
+                
+                await eventService.update(existingBooking.event_id, {
+                    tickets_sold: updatedTicketsSold,
+                    updated_at: new Date()
+                });
+
+                console.log(`Returned ${existingBooking.quantity} tickets to event ${existingBooking.event_id}`);
+            }
         }
         
         const deleted = await bookingService.remove(bookingId);

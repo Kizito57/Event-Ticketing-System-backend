@@ -265,7 +265,8 @@ export const loginUser = async (req: Request, res: Response) => {
                 last_name: user.last_name,
                 email: user.email,
                 role: user.role,
-                is_verified: user.is_verified
+                is_verified: user.is_verified,
+                 image_url: user.image_url
             }
         });
 
