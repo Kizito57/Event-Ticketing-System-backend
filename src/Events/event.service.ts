@@ -22,9 +22,27 @@ export const getById = async (id: number): Promise<TSEvent | undefined> => {
 
 export const create = async (data: TIEvent): Promise<TSEvent | undefined> => {
   try {
-    const result = await db.insert(EventsTable).values(data).returning();
+    // Create a clean insert object with only required fields
+    // Explicitly type it to match the exact structure expected
+    const insertData = {
+      title: data.title,
+      description: data.description || null,
+      venue_id: data.venue_id,
+      category: data.category,
+      date: data.date,
+      time: data.time,
+      image_url: data.image_url || null,
+      ticket_price: data.ticket_price,
+      tickets_total: data.tickets_total
+      // Exclude: event_id (serial), tickets_sold (has default), created_at (has default), updated_at (has default)
+    } as const;
+    
+    console.log('Inserting data:', insertData);
+    
+    const result = await db.insert(EventsTable).values(insertData).returning();
     return result[0];
   } catch (error: any) {
+    console.error('Database insert error:', error);
     throw new Error(`Failed to create event: ${error.message}`);
   }
 };

@@ -48,11 +48,8 @@ export const getEventById = async (req: Request, res: Response) => {
 // CREATE new event (Admin only)
 export const createEvent = async (req: Request, res: Response) => {
     try {
-        const eventData = {
-            ...req.body,
-            created_at: new Date(),
-            updated_at: new Date()
-        };
+        // Don't manually add created_at and updated_at - let the database handle defaults
+        const eventData = req.body;
 
         const newEvent = await eventService.create(eventData);
         if (!newEvent) {
@@ -80,6 +77,7 @@ export const createEvent = async (req: Request, res: Response) => {
 export const updateEvent = async (req: Request, res: Response) => {
     try {
         const eventId = Number(req.params.id);
+        // Only add updated_at for updates, not created_at
         const updateData = {
             ...req.body,
             updated_at: new Date()
